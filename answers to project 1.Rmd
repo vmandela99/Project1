@@ -1,0 +1,86 @@
+---
+title: "Project 1 answers"
+author: "Practical Lecture 7"
+date: "January 22, 2020"
+output:
+  pdf_document: default
+  html_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+## R Training Project
+
+The data was collected on the use of mobile money services and the experiences of mobile money customers in three districts of Rwanda. The dataset has been provided and you have been asked to write a short summary outlining key findings from the project. You should perform all the statistical analysis required and write up the key findings. You should remember that the target audiences do not have a statistical background. You can access the tasks of this project [here](https://github.com/vmandela99/Project1)
+
+The research manager wants you to address the following points in the key findings:
+
+1.	Clean the data before undertaking any analysis
+
+```{r include=FALSE}
+library(tidyverse)
+library(scales)
+library
+theme_set(theme_light())
+
+#load the data
+proj_data <- read_csv("https://raw.githubusercontent.com/vmandela99/Project1/master/mobilemoney_data.csv")
+
+#clean the data
+##remove incomplete entries
+clean_data <- proj_data %>% na_if(" ") %>% drop_na()
+```
+
+```{r echo=FALSE}
+clean_data %>% head(5)%>% knitr::kable()
+```
+
+
+2.	Select the variables, "age", "gender", "education level" and "number of household members" in R and write them in a new and separate file. Save the data set as "demographics.csv"
+
+```{r include=FALSE}
+#view the data names
+names(clean_data)
+```
+
+```{r echo=TRUE}
+#extract the variables of interest
+demographics <- clean_data %>% select(7:10)
+
+#This code exports to demographics.csv
+#write_csv(demographics,"demographics.csv")
+```
+
+3.	Conduct exploratory analysis of the data and write a few bullet points on any descriptive statistics (summary statistics, tables and graphs) you find interesting and why you find them interesting.
+
+```{r include=FALSE}
+skimr::skim(clean_data)
+```
+
+```{r echo=TRUE}
+#count
+demographics %>% count(gender,name = "frequency") %>% mutate(percentage = round(frequency/sum(frequency),4)*100) %>% knitr::kable(caption = "Table showing frequency of Gender", col.names = c("Gender","Frequency","Perc"))
+```
+
+In the mobile money data survey the complete information was from 38 female and 81 males. 
+
+```{r echo=TRUE}
+demographics %>% count(factor(hh_members)) %>% rename(members=`factor(hh_members)`) %>%  mutate(percentage = round(n/sum(n),4)*100, members =fct_reorder(members,n))%>% ggplot(aes(x = members ,y = percentage))+ geom_col(fill = "navy blue") + coord_flip() + labs(x = "# of household members", y = "percentage frequency", title = "In most of the houses, how many people lived there?", subtitle = "most households had 4 and 3 members") + theme_bw()+ scale_y_continuous(
+  breaks = c(10, 20),
+  label = c("ten %", "twenty %")
+)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
