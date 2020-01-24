@@ -17,7 +17,7 @@ The research manager wants you to address the following points in the key findin
 
 1.	Clean the data before undertaking any analysis
 
-```{r include=FALSE}
+```{r import, include=FALSE}
 library(tidyverse)
 library(scales)
 library
@@ -69,6 +69,49 @@ demographics %>% count(factor(hh_members)) %>% rename(members=`factor(hh_members
   breaks = c(10, 20),
   label = c("ten %", "twenty %")
 )
+```
+
+4.	During the survey, participants listed all the different types of financial accounts that they have registered. The resulting data has a format where there is one observation per account type. Format the data so that there is now one observation participant. Save data as mobile_new.csv 
+
+```{r}
+
+#spread the acoount type column using the account number as values
+clean_data %>% pivot_wider(names_from =  account_type,values_from =  account_num) -> mobile_new
+
+#to write a new data set
+#write.csv(mobile_new, "mobile_new.csv")
+```
+
+The procedure we used was to spread the types of accounts column and we end up with one observation for each person, regardless the number of accounts they have.
+
+5.	Describe how the mobile money market is divided between the three companies. Include at least one chart or table to illustrate your findings.
+
+```{r}
+clean_data %>% ggplot(aes(x= mm_account_telco_main, y = 1,fill = account_type)) + geom_col(position = "stack") + labs(y = "frequency of bank accounts", x = "Type of Company", title = "how is the mobile money market is divided between the three companies?", subtitle = "dd")
+```
+
+```{r}
+clean_data %>% group_by(mm_account_telco_main)%>% count(mm_account_telco_main,account_type) %>% mutate(perc = n/sum(n)*100) %>% arrange(desc(perc)) %>% knitr::kable()
+
+```
+
+
+6.	Develop a cross tabulation (in percentages) with gender as the rows and columns with urban, mm_trust and prefer_cash
+
+```{r include=FALSE}
+cross_data <- clean_data %>% select(gender,urban,mm_trust,prefer_cash)
+
+new_croo <- cross_data %>% mutate(urban1 = as.numeric( fct_anon(factor(urban))),
+                      mm_tust1 = as.numeric(fct_anon(factor(mm_trust))),
+                      prefer_cash1 = as.numeric(fct_anon(factor(prefer_cash))))  
+
+new_croo %>% group_by(gender) %>% summarise(urban_perc = sum(urban1))
+```
+
+7.	Plot the graph of gender and mm_account in the same bar graph and clearly label your axis
+
+```{r}
+proj_data %>% ggplot(aes(x= gender, y = 1,fill = mm_account)) + geom_col(position = "stack") + labs(x = "Gender of the respondents", y = "Frequency", title = "How many people have accounts by gender?", subtitle = "78.6% of males had accounts as compared to 61%. 38.1% of women had no accounts as compared to 21.4%")
 ```
 
 
